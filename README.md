@@ -18,9 +18,14 @@ General Discussions:
 
 - The codes for training and testing are messy as I have tried many different methods for the betterment of the model. I left it as it is (with unnecessary lines commented) in order to showcase that I have tried those things.
 - The following is the error/loss curves:
-
 <p align="center">
-  <img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="200" style="display: inline-block;"/>
-  <img src="/time_plots/CNN_Error_Plot.png" alt="CNN LOSS" width="200" style="display: inline-block;"/>
-  <img src="/time_plots/DCNN_Error_Plot.png" alt="DCNN LOSS" width="200" style="display: inline-block;"/>
-</p>p
+  <img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/CNN_Error_Plot.png" alt="CNN LOSS" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/DCNN_Error_Plot.png" alt="DCNN LOSS" width="300" style="display: inline-block;"/>
+</p>
+
+  It can be seen that the curves converging to a minimum point. One this I couldn't understand is that why the validation loss is always less than training loss.
+- Another issue I have faces is the size. I couldn't make enough trails for DCNN primarily due to the size of the data and model. I couldn't even work on the total 800 training data due to this. But I could get some sensible outcome from each model so I believe it is sufficient.
+- Every single hyper parameter like kernel size or stride of convolution layers, hidden ayer size, activation functions etc. are selected after many trials. The final ones are as far as I can try, the best ones.
+
+- Levent Faruk Soysal
