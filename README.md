@@ -28,4 +28,4 @@ General Discussions:
 - Another issue I have faces is the size. I couldn't make enough trails for DCNN primarily due to the size of the data and model. I couldn't even work on the total 800 training data due to this. But I could get some sensible outcome from each model so I believe it is sufficient.
 - Every single hyper parameter like kernel size or stride of convolution layers, hidden ayer size, activation functions etc. are selected after many trials. The final ones are as far as I can try, the best ones.
 
-- Levent Faruk Soysal
+Levent Faruk Soysal
