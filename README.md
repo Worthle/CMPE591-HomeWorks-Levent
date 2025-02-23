@@ -19,8 +19,7 @@ General Discussions:
 - The codes for training and testing are messy as I have tried many different methods for the betterment of the model. I left it as it is (with unnecessary lines commented) in order to showcase that I have tried those things.
 - The following is the error/loss curves:
 
-![MLP LOSS](/time_plots/MLP_Error_Plot.png)
 
-<img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="300" style="display: inline-block;"/>
-<img src="/time_plots/CNN_Error_Plot.png" alt="CNN LOSS" width="300" style="display: inline-block;"/>
-<img src="/time_plots/DCNN_Error_Plot.png" alt="DCNN LOSS" width="300" style="display: inline-block;"/>
+<img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="200" style="display: inline-block;"/>
+<img src="/time_plots/CNN_Error_Plot.png" alt="CNN LOSS" width="200" style="display: inline-block;"/>
+<img src="/time_plots/DCNN_Error_Plot.png" alt="DCNN LOSS" width="200" style="display: inline-block;"/>
