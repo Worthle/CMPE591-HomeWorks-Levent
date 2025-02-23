@@ -13,3 +13,14 @@ Brief Explaination for each script files:
 - testMLP.py/testCNN.py/test.DCNN.py: These files are for test data evalulations. They will use the model on the test data and displays the total loss. The DCNN one also has a commented section where it will save the images from data and generated ones side by side into test_images folder. Altough generally not succesful as it should, there are really good generated images (like the following) from the DCNN model.
 
 ![Image Comparison](/test_images/test_side_by_side_1.png)
+
+General Discussions:
+
+- The codes for training and testing are messy as I have tried many different methods for the betterment of the model. I left it as it is (with unnecessary lines commented) in order to showcase that I have tried those things.
+- The following is the error/loss curves:
+
+![MLP LOSS](/time_plots/MLP_Error_Plot.png)
+
+<img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="300" style="display: inline-block;"/>
+<img src="/time_plots/CNN_Error_Plot.png" alt="CNN LOSS" width="300" style="display: inline-block;"/>
+<img src="/time_plots/DCNN_Error_Plot.png" alt="DCNN LOSS" width="300" style="display: inline-block;"/>
