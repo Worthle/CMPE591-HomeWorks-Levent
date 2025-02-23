@@ -16,7 +16,7 @@ This way you are be able to train or test the networks with only these two codes
 
 **General Discussions:**
 
-- The codes for training and testing are messy as I have tried many different methods for the betterment of the model. I left it as it is (with unnecessary lines commented) in order to showcase that I have tried many things.
+- The codes for training and testing are messy as I have tried many different methods for the betterment of the model. I left it as it is (with unnecessary lines commented) in order to showcase that I have tried many things. Same thing goes for the first/second/third set folders in datas. I used them for different trails and didn't wanted to get rid of them.
 - The following is the error/loss curves:
 <p align="center">
   <img src="/time_plots/MLP_Error_Plot.png" alt="MLP LOSS" width="300" style="display: inline-block;"/>
