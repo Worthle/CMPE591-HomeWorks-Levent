@@ -1,8 +1,8 @@
 In order to try all methods please run "train.py" or "test.py" respectively.
-Both these codes will ask you to enter a number for different methods.
-1- MLP Position Estimation
-2- CNN Position Estimation
-3- DCNN Image Generation
+Both these codes will ask you to enter a number for different methods.  
+1- MLP Position Estimation  
+2- CNN Position Estimation  
+3- DCNN Image Generation  
 This way you are be able to train or test the networks with only these two codes.
 
 
