@@ -30,3 +30,11 @@ This way you are be able to train or test the networks with only these two codes
 - Every single hyper parameter like kernel size or stride of convolution layers, hidden ayer size, activation functions etc. are selected after many trials. The final ones are, as far as I can try, the best ones.
 
 **Levent Faruk Soysal**
+
+# HomeWork 2:
+
+
+
+**Levent Faruk Soysal**
+
+
