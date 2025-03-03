@@ -56,7 +56,7 @@ high_reward_threshold = 50.0
 
 In here, buffer size is selected as 50000. For epsilon, there are many parameters as I have tried to have somewhat of a dynamic epsilon (reward thresholds and additional epsilon parameters), but later decided that to have usual decay.
 Before training the neural network, I fill the buffer with 50000 samples. After training, I save the model and plot the Reward, Reward per #Episode and epsilon.
-- TestDQN.py: In testing, Instead of "offscreen" "gui" is used for environment so we can see what's happening. Epsilon is kept at 0.0 meaning no exploration. So the model only take action based on the training.
+- TestDQN.py: In testing, Instead of "offscreen", "gui" is used for environment so we can see what's happening. Epsilon is kept at 0.0 meaning no exploration. So the model only take action based on the training.
 
 **Discussions and Results**
 - Since this is a computation heavy task, I could not have time to make many different trials with different parameters. For testing the code and fixing bugs etc. there was not an option for me to have reliable trails. So, only before the last training session, I could only use like 100-200 episodes for testing due to this issue. My final run took about 30 hours o train.
