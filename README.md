@@ -35,7 +35,7 @@ This way you are be able to train or test the networks with only these two codes
 
 **Brief Explaination**
 - For Deep Q Learning assignment there are only two codes. (aside from environment.py and homework2.py)
-- You can evaluate and run the codes by using the train.py and test.py for this assigment too. (And all the assignments in the future)
+- You can evaluate and run the codes by using the train.py and test.py for this assigment too. (**And all the assignments in the future.**)
 - trainDQN.py: This is the folder where Q Learning and Neural Network Training has implemented. Replay Buffer is defined using OOP as well as Neural Network. Network has one hidden laer with nodes. For optimizer, RMSProp and Huber Loss (SmoothL1) is used as stated in lecture notes that these methods yields better results in RL. Although I tried other methods too, they were not that satisfactory. The following is the hypermaters I used in my best resulted training:
   
 learning_rate = 0.0001
@@ -58,15 +58,25 @@ In here, buffer size is selected as 50000. For epsilon, there are many parameter
 Before training the neural network, I fill the buffer with 50000 samples. After training, I save the model and plot the Reward, Reward per #Episode and epsilon.
 - TestDQN.py: In testing, Instead of "offscreen" "gui" is used for environment so we can see what's happening. Epsilon is kept at 0.0 meaning no exploration. So the model only take action based on the training.
 
-**Discussions**
+**Discussions and Results**
 - Since this is a computation heavy task, I could not have time to make many different trials with different parameters. For testing the code and fixing bugs etc. there was not an option for me to have reliable trails. So, only before the last training session, I could only use like 100-200 episodes for testing due to this issue. My final run took about 30 hours o train.
-- The following are the plots in my trials. The first one is my first try where I tweak the parameters and this is the best I could get. Other ones when I implemented dynamic epsilon. Meaning that for two threshold values for reward, epsilon changes differently. If the reward is less than 10, epsilon is increase, therefore more exploration. If it is between 10-50, epsilon is decrased by a small value. If reward is more than 50, then epsilon is decreased by a larger value. So, this is all for tweaking the exploration and exploitation. The results are better than conventional epsilon decaying but I don't want to take the risk for higher episodes, because of computation time. What if the epsilon stays always at max? I couldn't take that chance so for 10000 episode run, I didn't used dynaimc epsilon. The Plots:
+- Second note is that I changed the maximum step time (self._max_timesteps = 100) in the homework2.py file to 100. This resulted better in smaller episode runs, and in general. 
+- The following are the plots in my trials. The first one is my first try where I tweak the parameters and this is the best I could get. Other ones when I implemented dynamic epsilon. Meaning that for two threshold values for reward, epsilon changes differently. If the reward is less than 10, epsilon is increase, therefore more exploration. If it is between 10-50, epsilon is decrased by a small value. If reward is more than 50, then epsilon is decreased by a larger value. So, this is all for tweaking the exploration and exploitation. The results are better than conventional epsilon decaying but I don't want to take the risk for higher episodes, because of computation time. What if the epsilon stays always at max? I couldn't take that chance so for 10000 episode run, I didn't used dynaimc epsilon.
+  The Plots (Normal Epsilon Decay / Dynamic Epsilon Decay - 100 Episode / Dynamic Epsilon Decay - 500 Episode):
 
 <p align="center">
   <img src="/HW2/Reward_Plots/firsttries.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
   <img src="/HW2/Reward_Plots/differentrewards.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
   <img src="/HW2/Reward_Plots/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
+
+- The 10000 episode run results are the following. It is obvious that the the learning occurs beacuse the average reward is increased. But in the runs there are still ver low rewards. So the reward window is increased but it doesn't actually converge to a higher value. I don't know why. The first plot is the rewards in the training wher 100 episode took place. Second plot is the test rewards wher I used the trained model in 10 trial runs. The Plots (Training Rewards - Testing Rewards):
+
+<p align="center">
+  <img src="/HW2/Reward_Plots/goodplot.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/HW2/Reward_Plots/test.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+</p>
+
 
 **Levent Faruk Soysal**
 
