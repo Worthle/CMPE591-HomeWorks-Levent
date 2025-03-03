@@ -33,6 +33,9 @@ This way you are be able to train or test the networks with only these two codes
 
 # HomeWork 2:
 
+**Brief Explaination**
+- For Deep Q Learning assignment there are only two codes. (aside from environment.py and homework2.py)
+- trainDQN.py: This is the folder where Q Learning and Neural Network Training has implemented. Replay Buffer is defined using OOP as well as Neural Network. Network has one hidden laer with nodes. For optimizer, RMSProp and Huber Loss (SmoothL1) is used as stated in lecture notes that these methods yields better results in RL. Although I tried other methods too, they were not that satisfactory. 
 
 
 **Levent Faruk Soysal**
