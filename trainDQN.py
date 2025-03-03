@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 replay_buffer.add(state, action, reward, next_state, done)
                 if done:
                     env.reset()
-                print(f"Buffer: ({len(replay_buffer)}/100000)")
+                print(f"Buffer: ({len(replay_buffer)}/50000)")
             print("Finished prefilling")
         while not done:
             state = env.high_level_state()
