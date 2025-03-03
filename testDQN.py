@@ -66,7 +66,7 @@ if __name__ == "__main__":
     
     N_ACTIONS = 8
     
-    env = Hw2Env(n_actions=N_ACTIONS, render_mode="offsceen")
+    env = Hw2Env(n_actions=N_ACTIONS, render_mode="gui")
 
     dqn_test = DQN(hidden_activation=F.relu,output_activation=None,hidden_size=500)
     dqn_test.load_state_dict(torch.load("DQN_model.pth"))
