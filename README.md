@@ -3,9 +3,10 @@ Both these codes will ask you to enter a number for different methods.
 1- MLP Position Estimation  
 2- CNN Position Estimation  
 3- DCNN Image Generation  
+4- DQN Training
 This way you are be able to train or test the networks with only these two codes.
 
-
+# HomeWork 1:
 
 **Brief Explaination for each script files:**
 - sampledata.py: Runs the simulation for collecting data samples. 800 for train, 200 for validation and 200 for test. Saves the data into "datas" folder. _0.pt files are for training, _1.pt for validation and _2.pt for test. Action, image and position data is gathered using the methods from given script and additional geom data collected using "self.data.geom("obj1").xmat" for including geometry of the object as a feature by altering the homework1.py file.
