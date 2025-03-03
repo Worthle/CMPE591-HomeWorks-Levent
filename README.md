@@ -64,8 +64,8 @@ Before training the neural network, I fill the buffer with 50000 samples. After 
 
 <p align="center">
   <img src="/HW2/Reward_Plots/firsttries.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/HW2/Reward_Plots/firsttries.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
-  <img src="/HW2/Reward_Plots/firsttries.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+  <img src="/HW2/Reward_Plots/differentrewards.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/HW2/Reward_Plots/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
 
 **Levent Faruk Soysal**
