@@ -78,6 +78,13 @@ Before training the neural network, I fill the buffer with 50000 samples. After 
 </p>
 
 
+
+
+# HomeWork 3:
+
+For this homework, I have tried everything and couldn't get a decent result. Therefore, I will only discuss the things I have tried.
+
+
 **Levent Faruk Soysal**
 
 
