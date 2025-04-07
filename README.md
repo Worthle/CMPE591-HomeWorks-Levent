@@ -3,9 +3,9 @@ Both these codes will ask you to enter a number for different methods.
 1- MLP Position Estimation  
 2- CNN Position Estimation  
 3- DCNN Image Generation  
-4- DQN Training
-5- VPG Training
-6- SAC Training
+4- DQN Training 
+5- VPG Training 
+6- SAC Training 
 This way you are be able to train or test the networks with only these two codes.
 
 # HomeWork 1:
