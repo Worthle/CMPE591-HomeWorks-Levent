@@ -91,7 +91,10 @@ For this homework, I have tried everything and couldn't get a decent result. The
 For both network, save, plot and moving average functions are added for visualization.
 
 **Discussion**
-- Main Problem
+- Main Problem is that, no matter what I do, the model is moving to a point regardless of positions of goal or object. No matter the length of training or the hyperparameters I couldn't fix this problem. Also, I have tried to look for a problem in my implementations, but couldn't debug the issue.
+- **Parameter Tests: ** I have tried different gammas, learning rates, hidden layers sizes, number of hidden layers and many other parameters. None of it worked properly.
+- **Reward Structure: ** My final attempt is to change the reward structure. I have tried smaller weights for discounts provided and added three more things. One is that since generally the robot stucks to the sides of the plane, I added a discount if the end effector position is not changed too much there will be a discount. Second thing is, I incorporated the end effector position to the goal as well as end effector to the object. Since the grid is 0.3x0.3, I by using the approximate maximum difference (hypotenuse 0.3*sqrt(2) = 0.234) between end effector and object and normalized the distance. for directional reward, instead of the value given 0.5 I used 1 - norm_ee_to_obj. And I added directional reward for the end effector two with the weight of norm_ee_to_obj. And these two are the total directional reward. This way, it add rewards for both object and end effector direction to goal while prioritizing the object direction. Third thing I added is when the end effector is close to the object, it gets a large positive rewards and if not get a small discount.
+
 
 
 
