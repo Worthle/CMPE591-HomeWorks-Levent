@@ -84,6 +84,32 @@ Before training the neural network, I fill the buffer with 50000 samples. After 
 
 For this homework, I have tried everything and couldn't get a decent result. Therefore, I will only discuss the things I have tried.
 
+**Brief Explaination of the Codes**
+
+- For Vanilla Policy Gradient, the VPG class is fot the policy gradient network and agent class is the primary class. Decide action by sampling action probabilities. Then, in update model it calculates the loss using the rewards and back propogate. 
+- For Soft Action Critic, Actor Network is similar to the VPG, and Two Critic Network are implemented for the Q-value estimation. Alpha update is immplemented for opimizing the entropy for ensuring the policy maintains enough exploration. Then targer network is being updated (soft update). 
+For both network, save, plot and moving average functions are added for visualization.
+
+**Discussion**
+- Main Problem
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 **Levent Faruk Soysal**
 
