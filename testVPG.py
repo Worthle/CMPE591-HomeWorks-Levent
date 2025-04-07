@@ -88,7 +88,7 @@ gamma=0.99
 if __name__ == "__main__":
     env = Hw3Env(render_mode="gui")
     agent = Agent() 
-    agent.model.load_state_dict(torch.load("VPG/VPG_model10020_100.pt"))
+    agent.model.load_state_dict(torch.load("VPG/VPG_model10020_1000.pt"))
     agent.model.eval()
     num_episodes = 10
     rewards = []

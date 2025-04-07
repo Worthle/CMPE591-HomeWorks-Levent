@@ -85,7 +85,9 @@ class Agent():
 
 def mov_avg(data, window_size):
     window = np.ones(int(window_size))/float(window_size)
-    return np.convolve(data,window,'same')
+    pad = window_size // 2
+    data_padded = np.pad(data, pad_width=pad,mode='edge')
+    return np.convolve(data_padded,window,'valid')
 
 episode_rewards = []
 gamma=0.99

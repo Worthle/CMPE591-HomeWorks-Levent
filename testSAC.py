@@ -196,9 +196,9 @@ if __name__ == "__main__":
     # Initialize environment and agent
     env = Hw3Env(render_mode="gui")
     agent = SACAgent(obs_dim=6, act_dim=2)
-    agent.actor.load_state_dict(torch.load("SAC/SACactor_model10020_100.pt"))
-    agent.critic1.load_state_dict(torch.load("SAC/SACcritic1_model10020_100.pt"))
-    agent.critic2.load_state_dict(torch.load("SAC/SACcritic2_model10020_100.pt"))
+    agent.actor.load_state_dict(torch.load("SAC/SACactor_model10020_860.pt"))
+    agent.critic1.load_state_dict(torch.load("SAC/SACcritic1_model10020_860.pt"))
+    agent.critic2.load_state_dict(torch.load("SAC/SACcritic2_model10020_860.pt"))
     agent.actor.eval()
     agent.critic1.eval()
     agent.critic2.eval()
