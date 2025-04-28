@@ -67,16 +67,16 @@ Before training the neural network, I fill the buffer with 50000 samples. After 
   The Plots (Normal Epsilon Decay / Dynamic Epsilon Decay - 100 Episode / Dynamic Epsilon Decay - 500 Episode):
   !!!!!!!!!!!!!!!!!!!I have switched to a different computer and these images are lost during new push. I will add them again later when i get back to the old computer!!!!!!!!!!!!!!!
 <p align="center">
-  <img src="/HW2/Reward_Plots/firsttries.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/HW2/Reward_Plots/differentrewards.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
-  <img src="/HW2/Reward_Plots/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+  <img src="/test_images/firsttries.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/test_images/differentrewards.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/test_images/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
 
 - The 10000 episode run results are the following. It is obvious that the the learning occurs beacuse the average reward is increased. But in the runs there are still ver low rewards. So the reward window is increased but it doesn't actually converge to a higher value. I don't know why. The first plot is the rewards in the training wher 100 episode took place. Second plot is the test rewards wher I used the trained model in 10 trial runs.  The Plots (Training Rewards - Testing Rewards):
 
 <p align="center">
-  <img src="/HW2/Reward_Plots/goodplot.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/HW2/Reward_Plots/test.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/test_images/goodplot.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/test_images/test.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
 </p>
 
 
