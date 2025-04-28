@@ -112,7 +112,7 @@ Now that working in Gym environment, I could manage to get increase in rewards f
 
 <p align="center">
   <img src="/time_plots/cnmperror.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/time_plots/cnmppredd.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/cnmppreddd.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
   <img src="/time_plots/cnmpbar.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
 
