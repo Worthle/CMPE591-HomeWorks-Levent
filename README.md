@@ -100,7 +100,14 @@ For both network, save, plot and moving average functions are added for visualiz
 
 **Results:** After the reward changes, I could finally get a increase in reward through episodes but only for Soft Actor Critic. But the tests are still not sufficient. I have saved almost all the results in the VPG and SAC folders, but for testing parameters vary, so not all trained model might work directly and need some configuration in the plotting.py script. Also, the moving average does strange thing at the start and end of the plots but I couldn't fix that too and It is not a big problem because it can be understood easily. The following are the 1000 episode runs for the final version where the additional rewards are added. For VPG, I used a 4 layer network, which sizes are [16 32 32 16]. For SAC, Actor network layer size is 512 and critic networks are 256. Reward is incresing for both models but end effector is moving to goal without the object. I tried to change the weights in my reward structure but couldn't solve this. It is either goes to a random point like always, or moves to goal. In the test simulations for the final method, there is hope but it is not quite there yet. Maybe with more training it will finally learn but there was no more time left. (I will add it later if it works with late submission disclaimer.)
 
+# HomeWork 3 Extended:
 
+Now that working in Gym environment, I could manage to get increase in rewards for Vanilla Policy Gradient, but SAC is still bad. 
+<p align="center">
+  <img src="/HW2/Reward_Plots/firsttries.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/HW2/Reward_Plots/differentrewards.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/HW2/Reward_Plots/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+</p>
 
 
 
