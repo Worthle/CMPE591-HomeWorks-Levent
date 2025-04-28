@@ -1,202 +1,149 @@
 import torch
 import torch.nn as nn
-import torch.optim as opt
+import torch.optim as optim
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import Dataset,DataLoader
 import torchvision.transforms as transforms
-from torch.autograd import Variable
-from torch.distributions import Categorical
-from torch.utils.tensorboard import SummaryWriter
 import time
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import random
 from collections import deque
-
-from homework3 import Hw3Env
+from homework3og import Hw3Env
 
 import environment
 
-env = Hw3Env(render_mode="offscreen")
 
-# Training hyperparameters
-lr_p = 0.01
-lr_v = 0.0005
-gamma = 0.99
-batch_size = 4
+class VPG(nn.Module):
+    def __init__(self, obs_dim=6, act_dim=2, hl=[16, 32, 32, 16]) -> None:#old 256 512 256
+        super(VPG, self).__init__()
+        layers = []
+        layers.append(nn.Linear(obs_dim, hl[0]))
+        layers.append(nn.ReLU())
+        for i in range(1, len(hl)):
+            layers.append(nn.Linear(hl[i-1], hl[i]))
+            layers.append(nn.ReLU())
+        layers.append(nn.Linear(hl[-1], act_dim*2))  # act_dim * (1 for mean + 1 for std)
+        self.model = nn.Sequential(*layers)
+        self.rewards_history = []
+        self.epi_reset()
+    def forward(self, x):
+        return self.model(x)
+    def epi_reset(self):
+        self.episode_actions = torch.Tensor([])
+        self.episode_rewards = []
 
 
-# Policy network
-class PolicyNet(nn.Module):
+
+class Agent():
     def __init__(self):
-        super(PolicyNet, self).__init__()
+        # edit as needed
+        self.model = VPG()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3) #1e-4 old
+        self.rewards = []
 
-        self.state_space = env.high_level_state().shape[0]
+    def save_model(self,idx,n):
+        torch.save(self.model.state_dict(), f"VPG/VPG_modelog{n}_{idx}.pt")
+
+
+    def decide_action(self, state):
+        state = torch.from_numpy(state).type(torch.FloatTensor)
+        action_mu, action_std = self.model(state).chunk(2, dim=-1)
+        action_std = F.softplus(action_std) + 5e-2
+        dist = torch.distributions.Normal(action_mu, action_std)
+        action = dist.sample()
+        action = torch.tanh(action)
+        self.model.episode_actions = torch.cat([self.model.episode_actions, dist.log_prob(action)])
+        return action
+    
+
+    def update_model(self):
+        R = 0
+        rewards = []
+        loss = []
+        for r in reversed(self.rewards):
+            R = r + gamma * R
+            rewards.insert(0,R)
+
+        rewards = torch.FloatTensor(rewards)
+        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
         
+        for episode_action, G in zip(self.model.episode_actions, rewards):
+            loss.append(-episode_action * G)
 
-        self.fc1 = nn.Linear(self.state_space, 128)
-        self.fc2 = nn.Linear(128, 2)
+        #loss = (torch.sum(torch.mul(self.model.episode_actions, rewards).mul(-1), -1))
+        self.optimizer.zero_grad()
+        torch.stack(loss).sum().backward()
+        self.optimizer.step()
+        self.model.rewards_history.append(np.sum(self.model.episode_rewards))
+        self.model.epi_reset()
 
-        self.gamma = gamma
-        self.policy_hist = Variable(torch.Tensor())  # policy history for traj
-        self.traj_reward = []
-        self.loss_hist = Variable(
-            torch.Tensor()
-        )  # loss history for each traj in episode
+    def add_reward(self, reward):
+        self.rewards.append(reward)
 
-    def forward(self, x):
-        model = nn.Sequential(
-            self.fc1, nn.Dropout(p=0.6), nn.ReLU(), self.fc2,
-            nn.Softmax(dim=-1)
-        )
+def mov_avg(data, window_size):
+    window = np.ones(int(window_size))/float(window_size)
+    pad = window_size // 2
+    data_padded = np.pad(data, pad_width=pad,mode='edge')
+    return np.convolve(data_padded,window,'valid')
 
-        return model(x)
-
-
-class ValueNet(nn.Module):
-    def __init__(self):
-        super(ValueNet, self).__init__()
-
-        self.state_space = env.high_level_state().shape[0]
-
-        self.fc1 = nn.Linear(self.state_space, 32)
-        self.fc2 = nn.Linear(32, 1)
-
-        self.value_hist = Variable(torch.Tensor())  # policy history for traj
-        self.loss_hist = Variable(
-            torch.Tensor()
-        )  # loss history for each traj in episode
-
-    def forward(self, x):
-        model = nn.Sequential(self.fc1, nn.ReLU(), nn.Dropout(p=0.6), self.fc2)
-
-        return model(x)
-
-
-# Instantiate networks and optimizers
-policy = PolicyNet()
-value = ValueNet()
-optimizer_policy = opt.Adam(policy.parameters(), lr=lr_p)
-optimizer_value = opt.Adam(value.parameters(), lr=lr_v)
-tb = True  # use tensorboard?
-if tb:
-    writer = SummaryWriter()
-
-
-# stochastic policy
-def select_action(s):
-    state = torch.from_numpy(s).type(torch.FloatTensor)
-    probs = policy(Variable(state))
-    val = value(Variable(state))
-    c = torch.distributions.Normal(probs, val)
-    action = c.sample()  # sample action from distribution
-
-    # store log probabilities and value function
-    policy.policy_hist = torch.cat(
-        [policy.policy_hist, c.log_prob(action).unsqueeze(0)]
-    )
-    value.value_hist = torch.cat([value.value_hist, val])
-
-    return action
-
-
-# compute losses for current trajectories
-def get_traj_loss():
-    returns = []
-    R = 0
-
-    # calculate discounted returns
-    for r in policy.traj_reward[::-1]:
-        R = r + policy.gamma * R
-        returns.insert(0, R)
-
-    # scale returns
-    returns = torch.FloatTensor(returns)
-    returns = (returns - returns.mean()) / (
-        returns.std() + 1e-8)
-
-    # calculate trajectory losses
-    loss_policy = torch.sum(
-        torch.mul(
-            policy.policy_hist, Variable(returns) - Variable(value.value_hist)
-        ).mul(-1),
-        -1,
-    ).unsqueeze(0)
-
-    loss_value = nn.MSELoss()(value.value_hist, Variable(returns)).unsqueeze(0)
-
-    # store loss values
-    policy.loss_hist = torch.cat([policy.loss_hist, loss_policy])
-
-    value.loss_hist = torch.cat([value.loss_hist, loss_value])
-
-    # clear traj_reward and policy and value histories
-    policy.traj_reward = []
-    policy.policy_hist = Variable(torch.Tensor())
-    value.value_hist = Variable(torch.Tensor())
-
-
-# network update after every batch of trajectories (end of episode)
-def update_policy(ep):
-    # compute episode loss from traj losses
-    loss_policy = torch.mean(policy.loss_hist)
-    loss_value = torch.mean(value.loss_hist)
-
-    # tensorboard book keeping
-    if tb:
-        writer.add_scalar("loss/policy", loss_policy, ep)
-        writer.add_scalar("loss/value", loss_value, ep)
-
-    # take gradient steps
-    optimizer_policy.zero_grad()
-    loss_policy.backward()
-    optimizer_policy.step()
-
-    optimizer_value.zero_grad()
-    loss_value.backward()
-    optimizer_value.step()
-
-    # re-initialize loss histories
-    policy.loss_hist = Variable(torch.Tensor())
-    value.loss_hist = Variable(torch.Tensor())
-
+episode_rewards = []
+gamma=0.95
 
 if __name__ == "__main__":
-    for ep in range(1000):  # episodes
-        episode_reward = 0
-        for i in range(batch_size):  # batch of trajectories
-            s = env.reset()
-            done = False
-            for t in range(1000):  # trajectory
-                a = select_action(s)
-                s, r, is_terminal, is_truncated = env.step(a)  # take step in env
-                done = is_terminal or is_truncated
-                policy.traj_reward.append(r)  # store traj reward
+    env = Hw3Env(render_mode="offscreen")
+    agent = Agent() 
+    
+    num_episodes = 10000
+    rewards = []
+    RPS = []
+    for episode in range(num_episodes):
+        env.reset()
+        state = env.high_level_state()
+        done = False
+        cumulative_reward = 0.0
+        episode_steps = 0
+        while not done:
+            #print(state)
+            action = agent.decide_action(state)
+            
+            next_state, reward, is_terminal, is_truncated = env.step(action)
+            agent.add_reward(reward)
+            cumulative_reward += reward
+            done = is_terminal or is_truncated
+            state = next_state
+            episode_steps += 1
+        
+        if cumulative_reward > 0:
+            print(f"Episode={episode+1}/{num_episodes}, reward={cumulative_reward:.4f}, RPS={cumulative_reward/episode_steps:.4f} - High Reward")
+        else:
+            print(f"Episode={episode+1}/{num_episodes}, reward={cumulative_reward:.4f}, RPS={cumulative_reward/episode_steps:.4f}")
+        rewards.append(cumulative_reward)
+        RPS.append(cumulative_reward/episode_steps)
 
-                if done:
-                    break
+        if episode % 100 == 0:
+            agent.save_model(episode,9*num_episodes+9030)
+            np.save(f"VPG/rewardsVPGog{9*num_episodes+9030}_{episode}.npy", np.array(rewards))
+            np.save(f"VPG/RPSVPGog{9*num_episodes+9030}_{episode}.npy", np.array(RPS))
+        if episode % 100 == 0:
+            plt.close()
+            plt.subplot(1,2,1)
+            plt.plot(rewards, '-', color='gray', linewidth=0.1)
+            plt.plot(mov_avg(rewards, min(episode+1,100)), 'r', linewidth=1)
+            plt.title("Rewards")
+            plt.subplot(1,2,2)
+            plt.plot(RPS, '-', color='gray', linewidth=0.1)
+            plt.plot(mov_avg(RPS, min(episode+1,100)), 'r', linewidth=1)
+            plt.title("Rewards per Episode Steps")
+            plt.draw()
+            plt.pause(1)
+        
 
-            episode_reward += (
-                np.sum(policy.traj_reward) / batch_size
-            )  # add to average episode reward
-            get_traj_loss()  # compute traj losses
-
-        update_policy(ep)  # one step with computed losses
-
-        if ep % 5 == 0:
-            print("Episode: {}, reward: {}".format(ep, episode_reward))
-            if tb:
-                writer.add_scalar("reward", episode_reward, ep)
+        agent.update_model()
 
 
-    #torch.save(agent.model.state_dict(), "VPG_model.pt")
-    #torch.save(agent.model.state_dict(), "VPG_model.pth")
-    #np.save("rewards.npy", np.array(rewards))
-    #np.save("RPS.npy", np.array(RPS))
-
-    plt.plot(episode_reward, '-', color='gray', linewidth=0.1)
-    plt.plot(mov_avg(episode_reward, 100), 'r', linewidth=1)
-    plt.title("Rewards")
-    plt.show()
+    agent.save_model(10000,9*num_episodes+9010)
+    np.save(f"VPG/rewardsVPGog{9*num_episodes+9010}_{10000}.npy", np.array(rewards))
+    np.save(f"VPG/RPSVPGog{9*num_episodes+9010}_{10000}.npy", np.array(RPS))

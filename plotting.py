@@ -9,8 +9,8 @@ def mov_avg(data, window_size):
     return np.convolve(data_padded,window,'valid')
 
 
-rewards = np.load('VPG/rewardsVPG10020_990.npy')
-RPS = np.load('VPG/RPSVPG10020_990.npy')
+rewards = np.load('VPG/rewardsVPGog99030_3000.npy')
+RPS = np.load('VPG/RPSVPGog99030_3000.npy')
 
 rewards_2 = np.load('SAC/rewardsSAC10020_860.npy')
 RPS_2 = np.load('SAC/RPSSAC10020_830.npy')

@@ -7,7 +7,8 @@ scripts = {
     "3": "testDCNN.py",
     "4": "testDQN.py",
     "5": "testVPG.py",
-    "6": "testSAC.py"
+    "6": "testSAC.py",
+    "7": "testCNMP.py"
 }
 
 headers = {
@@ -16,7 +17,8 @@ headers = {
     "3": "Test D-CNN for Image Generation - HW1 (Example Images at the folder test_images)",
     "4": "Test DQN - HW2",
     "5": "Test VPG - HW3",
-    "6": "Test SAC - HW3"
+    "6": "Test SAC - HW3",
+    "7": "Test CNMP - HW4"
 }
 print("Select A Method for Testing the Trained Network: ")
 for key,value in headers.items():
@@ -35,6 +37,8 @@ try:
         print("VPG TESTING INITIALIZING")
     elif choice == "6":
         print("SAC TESTING INITIALIZING")
+    elif choice == "7":
+        print("CNMP IS TESTING")
     else:
         print("LOSS FOR TEST DATA IS CALCULATING")
     

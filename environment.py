@@ -29,7 +29,7 @@ class BaseEnv:
         ]
         self.reset()
         self._joint_qpos_idxs = [self.model.joint(x).qposadr for x in self._joint_names]
-        #self._ee_site = "ur5e/robotiq_2f85/gripper_site"
+        self._ee_site = "ur5e/robotiq_2f85/gripper_site"
 
     def reset(self):
         if hasattr(self, "model"):
@@ -61,7 +61,6 @@ class BaseEnv:
         self.data.ctrl[4] = -np.pi/2
         mujoco.mj_step(self.model, self.data, nstep=2000)
         self._t = 0
-        self._ee_site = "ur5e/robotiq_2f85/gripper_site"
 
     def _create_scene(self):
         return create_tabletop_scene()

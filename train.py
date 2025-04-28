@@ -7,7 +7,8 @@ scripts = {
     "3": "imdeconv.py",
     "4": "trainDQN.py",
     "5": "trainVPG.py",
-    "6": "trainSAC.py"
+    "6": "trainSAC.py",
+    "7": "trainCNMP.py"
 }
 
 headers = {
@@ -16,7 +17,8 @@ headers = {
     "3": "Train D-CNN for Image Generation - HW1",
     "4": "Train DQN - HW2",
     "5": "Train VPG - HW3",
-    "6": "Train SAC - HW3"
+    "6": "Train SAC - HW3",
+    "7": "Train CNMP - HW4"
 }
 print("Select A Training Method: ")
 for key,value in headers.items():
@@ -35,6 +37,8 @@ try:
         print("VPG TRAINING INITIALIZING")
     elif choice == "6":
         print("SAC TRAINING INITIALIZING")
+    elif choice == "7":
+        print("CNMP IS TRAINING")
     else:
         print("NEURAL NETWORK IS TRAINING")
     subprocess.run(["python",sc_nm],check=True)

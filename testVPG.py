@@ -1,117 +1,75 @@
+import gymnasium as gym
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-from torch.optim.lr_scheduler import StepLR
-from torch.utils.data import Dataset,DataLoader
-import torchvision.transforms as transforms
-import time
-import matplotlib.pyplot as plt
+from torch.distributions import Normal
+from torch.optim.lr_scheduler import CosineAnnealingLR
 import numpy as np
-import os
-import random
-from collections import deque
-from homework3 import Hw3Env
+# Hyperparameters
+learning_rate = 1e-4
+gamma = 0.99
+episodes = 1000000
 
-import environment
+# Simple Policy Network
+class PolicyNetwork(nn.Module):
+    def __init__(self, obs_dim, act_dim):
+        super().__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(obs_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+        )
+        self.mean_head = nn.Linear(512, act_dim)
+        self.log_std = nn.Parameter(torch.zeros(act_dim))  # Trainable std
+        self.std_const = 5e-2  # Constant std for exploration
 
-
-class VPG(nn.Module):
-    def __init__(self, obs_dim=6, act_dim=2, hl=[16, 32, 32, 16]) -> None:
-        super(VPG, self).__init__()
-        layers = []
-        layers.append(nn.Linear(obs_dim, hl[0]))
-        layers.append(nn.ReLU())
-        for i in range(1, len(hl)):
-            layers.append(nn.Linear(hl[i-1], hl[i]))
-            layers.append(nn.ReLU())
-        layers.append(nn.Linear(hl[-1], act_dim*2))  # act_dim * (1 for mean + 1 for std)
-        self.model = nn.Sequential(*layers)
-        self.rewards_history = []
-        self.epi_reset()
     def forward(self, x):
-        return self.model(x)
-    def epi_reset(self):
-        self.episode_actions = torch.Tensor([])
-        self.episode_rewards = []
+        x = self.fc(x)
+        mean = self.mean_head(x)
+        std = self.log_std.exp() + self.std_const  # Ensure std is positive
+        return mean, std
 
+def compute_returns(rewards, gamma):
+    returns = []
+    R = 0
+    for r in reversed(rewards):
+        R = r + gamma * R
+        returns.insert(0, R)
+    return returns
 
-
-class Agent():
-    def __init__(self):
-        # edit as needed
-        self.model = VPG()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-4) 
-        self.rewards = []
-        
-    def decide_action(self, state):
-        state = torch.from_numpy(state).type(torch.FloatTensor)
-        action_mu, action_std = self.model(state).chunk(2, dim=-1)
-        action_std = F.softplus(action_std)# + 5e-2
-        dist = torch.distributions.Normal(action_mu, action_std)
-        action = dist.sample()
-        action = torch.tanh(action)
-        self.model.episode_actions = torch.cat([self.model.episode_actions, dist.log_prob(action)])
-        return action
-
-    def update_model(self):
-        R = 0
-        rewards = []
-        loss = []
-        for r in reversed(self.rewards):
-            R = r + gamma * R
-            rewards.insert(0,R)
-
-        rewards = torch.FloatTensor(rewards)
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
-        
-        for episode_action, G in zip(self.model.episode_actions, rewards):
-            loss.append(-episode_action * G)
-
-        #loss = (torch.sum(torch.mul(self.model.episode_actions, rewards).mul(-1), -1))
-        self.optimizer.zero_grad()
-        torch.stack(loss).sum().backward()
-        self.optimizer.step()
-        self.model.rewards_history.append(np.sum(self.model.episode_rewards))
-        self.model.epi_reset()
-
-    def add_reward(self, reward):
-        self.rewards.append(reward)
-
-def mov_avg(data, window_size):
-    window = np.ones(int(window_size))/float(window_size)
-    return np.convolve(data,window,'same')
-
-episode_rewards = []
-gamma=0.99
 
 if __name__ == "__main__":
-    env = Hw3Env(render_mode="gui")
-    agent = Agent() 
-    agent.model.load_state_dict(torch.load("VPG/VPG_model10020_1000.pt"))
-    agent.model.eval()
-    num_episodes = 10
-    rewards = []
-    RPS = []
-    for episode in range(num_episodes):
-        env.reset()
-        state = env.high_level_state()
+    env = gym.make("Pusher-v5", render_mode="human", max_episode_steps=500)
+    obs_dim = env.observation_space.shape[0]
+    act_dim = env.action_space.shape[0]
+
+    policy = PolicyNetwork(obs_dim, act_dim)
+    policy.load_state_dict(torch.load("VPG/policy_vpg2_276000.pth"))
+    policy.std_const = 0
+    policy.eval()
+    
+    for episode in range(10):
+        state = env.reset()
+        state = state[0]  # Unwrap the tuple
         done = False
-        cumulative_reward = 0.0
-        episode_steps = 0
+        total_reward = 0
+
         while not done:
-            #print(state)
-            action = agent.decide_action(state)
-            next_state, reward, is_terminal, is_truncated = env.step(action[0])
-            agent.add_reward(reward)
-            cumulative_reward += reward
-            done = is_terminal or is_truncated
+            state_tensor = torch.tensor(state, dtype=torch.float32)
+            mean, std = policy(state_tensor)
+
+            dist = Normal(mean, std)
+            action = dist.sample()
+            action_clipped = torch.clamp(action, float(env.action_space.low[0]), float(env.action_space.high[0]))
+
+            next_state, reward, terminated, truncated, _ = env.step(action_clipped.detach().numpy())
+            done = terminated or truncated
+
+            total_reward += reward
             state = next_state
-            episode_steps += 1
-        if cumulative_reward > 0:
-            print(f"Episode={episode+1}, reward={cumulative_reward:.4f}, RPS={cumulative_reward/episode_steps:.4f} - High Reward")
-        else:
-            print(f"Episode={episode+1}, reward={cumulative_reward:.4f}, RPS={cumulative_reward/episode_steps:.4f}")
-        rewards.append(cumulative_reward)
-        RPS.append(cumulative_reward/episode_steps)
-  
+
+        print(f"Total Reward in Test: {total_reward:.2f}")
+    env.close()

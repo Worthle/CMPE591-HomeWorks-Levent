@@ -1,10 +1,20 @@
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.distributions as D
 import torchvision.transforms as transforms
+import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+import pylab as pl
+from IPython import display
+from IPython.core.display import HTML
+from IPython.core.display import display as html_width
+html_width(HTML("<style>.container { width:90% !important; }</style>"))
 
-import environment
-
+import environmentcnmp
+plt.ion()
 
 class CNP(torch.nn.Module):
     def __init__(self, in_shape, hidden_size, num_hidden_layers, min_std=0.1):
@@ -134,12 +144,12 @@ class CNP(torch.nn.Module):
 
     def concatenate(self, r, target):
         num_target_points = target.shape[1]
-        r = r.unsqueeze(1).repeat(1, num_target_points, 1)  # repeating the same r_avg for each target
+        r = r.repeat(1, num_target_points, 1)  # repeating the same r_avg for each target
         h_cat = torch.cat([r, target], dim=-1)
         return h_cat
 
 
-class Hw5Env(environment.BaseEnv):
+class Hw5Env(environmentcnmp.BaseEnv):
     def __init__(self, render_mode="gui") -> None:
         self._render_mode = render_mode
         self.viewer = None
@@ -160,11 +170,11 @@ class Hw5Env(environment.BaseEnv):
     def _create_scene(self, seed=None):
         if seed is not None:
             np.random.seed(seed)
-        scene = environment.create_tabletop_scene()
+        scene = environmentcnmp.create_tabletop_scene()
         obj_pos = [0.5, 0.0, 1.5]
         height = np.random.uniform(0.03, 0.1)
         self.obj_height = height
-        environment.create_object(scene, "box", pos=obj_pos, quat=[0, 0, 0, 1],
+        environmentcnmp.create_object(scene, "box", pos=obj_pos, quat=[0, 0, 0, 1],
                                   size=[0.03, 0.03, height], rgba=[0.8, 0.2, 0.2, 1],
                                   name="obj1")
         return scene
@@ -186,6 +196,27 @@ class Hw5Env(environment.BaseEnv):
         return np.concatenate([ee_pos, obj_pos, [self.obj_height]])
 
 
+def get_train_sample(X,Y):
+    obs_max = 5
+    d_N = X.shape[0]
+    d_x , d_y = (X.shape[-1] , Y.shape[-1])
+    time_len = X.shape[1]
+    n = np.random.randint(0,obs_max)+1
+    d = np.random.randint(0, d_N)
+
+    observations = np.zeros((n,d_x+d_y))
+    target_X = np.zeros((1,d_x))
+    target_Y = np.zeros((1,d_y))
+
+    perm = np.random.permutation(time_len)
+    observations[:n,:d_x] = X[d,perm[:n]]
+    observations[:n,d_x:d_x+d_y] = Y[d,perm[:n]]
+    target_X[0] = X[d,perm[n]]
+    target_Y[0] = Y[d,perm[n]]
+    return torch.from_numpy(observations), torch.from_numpy(target_X), torch.from_numpy(target_Y)
+
+
+
 def bezier(p, steps=100):
     t = np.linspace(0, 1, steps).reshape(-1, 1)
     curve = np.power(1-t, 3)*p[0] + 3*np.power(1-t, 2)*t*p[1] + 3*(1-t)*np.power(t, 2)*p[2] + np.power(t, 3)*p[3]
@@ -193,8 +224,11 @@ def bezier(p, steps=100):
 
 
 if __name__ == "__main__":
-    env = Hw5Env(render_mode="gui")
+    env = Hw5Env(render_mode="offscreen")
     states_arr = []
+    states_arr_val = []
+    curve_arr = []
+    curve_arr_val = []
     for i in range(100):
         env.reset()
         p_1 = np.array([0.5, 0.3, 1.04])
@@ -210,8 +244,32 @@ if __name__ == "__main__":
             env._set_ee_pose(p, rotation=[-90, 0, 180], max_iters=10)
             states.append(env.high_level_state())
         states = np.stack(states)
-        states_arr.append(states)
-        print(f"Collected {i+1} trajectories.", end="\r")
+        curve = np.stack(curve)
+        states_arr.append(states.copy())
+        curve_arr.append(curve.copy())
+        # states_arr = np.stack(states_arr)
+        # curve_arr = np.stack(curve_arr)
+        print(f"Collected {i+1} training trajectories.", end="\r")
+
+    for j in range(50):
+        env.reset()
+        p_1 = np.array([0.5, 0.3, 1.04])
+        p_2 = np.array([0.5, 0.15, np.random.uniform(1.04, 1.4)])
+        p_3 = np.array([0.5, -0.15, np.random.uniform(1.04, 1.4)])
+        p_4 = np.array([0.5, -0.3, 1.04])
+        points = np.stack([p_1, p_2, p_3, p_4], axis=0)
+        curve = bezier(points)
+
+        env._set_ee_in_cartesian(curve[0], rotation=[-90, 0, 180], n_splits=100, max_iters=100, threshold=0.05)
+        states_val = []
+        for p in curve:
+            env._set_ee_pose(p, rotation=[-90, 0, 180], max_iters=10)
+            states_val.append(env.high_level_state())
+        states_val = np.stack(states_val)
+        curve = np.stack(curve)
+        states_arr_val.append(states_val.copy())
+        curve_arr_val.append(curve.copy())
+        print(f"Collected {j+1} validation trajectories.", end="\r")
 
     fig, ax = plt.subplots(1, 2)
     for states in states_arr:
@@ -221,4 +279,147 @@ if __name__ == "__main__":
         ax[1].plot(states[:, 2], states[:, 3], alpha=0.2, color="r")
         ax[1].set_xlabel("o_y")
         ax[1].set_ylabel("o_z")
+    plt.show()
+
+    fig, ax = plt.subplots(1, 2)
+    for states_val in states_arr_val:
+        ax[0].plot(states_val[:, 0], states_val[:, 1], alpha=0.2, color="b")
+        ax[0].set_xlabel("e_y")
+        ax[0].set_ylabel("e_z")
+        ax[1].plot(states_val[:, 2], states_val[:, 3], alpha=0.2, color="r")
+        ax[1].set_xlabel("o_y")
+        ax[1].set_ylabel("o_z")
+    plt.show()
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+    ax1.set_title('Train Loss')
+    ax2.set_title('Train Loss (Smoothed)')
+    #fig_val, ax_val = plt.subplots(figsize=(5, 5))
+    fig_bar, (ax_bar_ee,ax_bar_obj) = plt.subplots(1, 2, figsize=(10, 5))
+    X = np.array(curve_arr)
+    Y = np.array(states_arr)
+    v_X = np.array(curve_arr_val)
+    v_Y = np.array(states_arr_val)
+
+
+
+    model = CNP([X.shape[-1],Y.shape[-1]],128,3).double()
+    learning_rate = 1e-4
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    smooth_losses = [0]
+    losses = []
+    loss_checkpoint = 100
+    plot_checkpoint = 1000
+    validation_checkpoint = 10
+    validation_error = 9999999
+
+    for step in range(1000000):  # loop over the dataset multiple times
+        obs_max = 5
+        d_N = X.shape[0]
+        d_x , d_y = (X.shape[-1] , Y.shape[-1])
+        time_len = X.shape[1]
+        observations, target_t, target_output = get_train_sample(X, Y)
+        observations = observations.unsqueeze(0)  # Add batch dimension
+        target_t = target_t.unsqueeze(0)          # Add batch dimension
+        target_output = target_output.unsqueeze(0)  # Add batch dimension
+        
+        optimizer.zero_grad()
+
+        output = model(observations, target_t)
+        loss = model.nll_loss(observations, target_t, target_output)
+        loss.backward()
+        optimizer.step()
+
+        if step % loss_checkpoint == 0:
+            losses.append(loss.data)
+            smooth_losses[-1] += loss.data/(plot_checkpoint/loss_checkpoint)
+
+        if step % validation_checkpoint == 0:
+            current_error = 0
+            for i in range(v_X.shape[0]):
+                # predicted_Y = np.zeros((time_len, d_y))
+                # predicted_std = np.zeros((time_len, d_y))
+                with torch.no_grad():
+                    predicted_Y,predicted_std = model(torch.from_numpy(np.array([np.concatenate((v_X[i,0],v_Y[i,0]))])).reshape(1,1,d_x+d_y), torch.from_numpy(v_X[i]).reshape(1,time_len,d_x))
+
+                current_error += torch.mean((predicted_Y.squeeze(0) - torch.from_numpy(v_Y[i, :])) ** 2).item() / v_X.shape[0]
+
+            # Update the best validation error and save the model if improved
+            if current_error < validation_error:
+                validation_error = current_error
+                torch.save(model.state_dict(), 'cnmp_best_validation.pt')
+                print(' New validation best. Error is ', current_error)
+
+        
+        if step % plot_checkpoint == 0:
+            #clearing output cell
+            display.clear_output(wait=True)
+            display.display(pl.gcf())
+
+            print(step)
+            #plotting training examples and smoothed losses
+            ax1.clear()
+            ax2.clear()
+
+
+
+            
+            
+            ax1.set_title('Train Loss')
+            ax1.plot(range(len(losses)), losses)
+            
+            ax2.set_title('Train Loss (Smoothed)')
+            ax2.plot(range(len(smooth_losses)), smooth_losses)
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+
+
+            # ax_val.clear()
+            # # for i in range(v_Y.shape[0]):
+            # #     ax_val.plot(v_Y[i,:,1],v_Y[i,:,2], alpha=0.2, color="r")
+            # #     ax_val.plot(v_Y[i,:,3],v_Y[i,:,4], alpha=0.2, color="b")
+            # #     #prediction_m, prediction_std = model(observations_tensor, v_X_tensor)
+            # # ax_val.plot(predicted_Y[0,:,0],predicted_Y[0,:,1], alpha=0.2, color="r")
+            # # ax_val.plot(predicted_Y[0,:,2],predicted_Y[0,:,3], alpha=0.2, color="b")
+            # # ax_val.set_title('Something')
+            # fig_val.canvas.draw()
+            # fig_val.canvas.flush_events()
+
+            ax_bar_ee.clear()
+            ax_bar_obj.clear()
+            ax_bar_ee.set_title('EE')
+            ax_bar_obj.set_title('Object')
+            errors_ee = np.abs(predicted_Y[0, :, 1:2].cpu().numpy() - v_Y[i, :, 1:2])
+            mean_ee = np.mean(errors_ee, axis=0)
+            std_ee = np.std(errors_ee, axis=0)
+
+            errors_obj = np.abs(predicted_Y[0, :, 3:4].cpu().numpy() - v_Y[i, :, 3:4])
+            mean_obj = np.mean(errors_obj, axis=0)
+            std_obj = np.std(errors_obj, axis=0)
+            ax_bar_ee.bar(range(len(mean_ee)), mean_ee, yerr=std_ee, alpha=0.5, color="r", capsize=5)
+            ax_bar_obj.bar(range(len(mean_obj)), mean_obj, yerr=std_obj, alpha=0.5, color="b", capsize=5)
+            fig_bar.canvas.draw()
+            fig_bar.canvas.flush_events()
+            #print("plotting")     
+            #plt.show()
+            
+
+                    # # #plotting validation cases
+            # for i in range(v_X.shape[0]):
+            #     prediction_m, prediction_std = model(observations_tensor, v_X_tensor)
+            #     for i in range(d_y):  # For every feature in Y vector, plot training data and its prediction
+            #         fig = plt.figure(figsize=(5, 5))
+            #         for j in range(d_N):
+            #             plt.plot(X[j, :, 0], Y[j, :, i])  # Assuming X[j,:,0] is time
+            #         plt.plot(X[j, :, 0], predicted_Y[:, i], color='black')
+            #         plt.errorbar(X[j, :, 0], predicted_Y[:, i], yerr=predicted_std[:, i], color='black', alpha=0.4)
+            #         #plt.scatter(observations[:, 0], observations[:, d_x + i], marker="X", color='black')
+            #         plt.pause(0.01)
+                #predict_model(np.array([np.concatenate((v_X[i,0],v_Y[i,0]))]), v_X[i])
+            
+
+            if step!=0:
+                smooth_losses.append(0)
+    print('Finished Training')
+    plt.ioff()
     plt.show()
