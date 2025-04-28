@@ -104,11 +104,17 @@ For both network, save, plot and moving average functions are added for visualiz
 
 Now that working in Gym environment, I could manage to get increase in rewards for Vanilla Policy Gradient, but SAC is still bad. 
 <p align="center">
-  <img src="/VPG/training_progress_gym_vpg_276000.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/SAC/training_progress_gym_sac_276000.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/VPG/training_progress_gym_vpg_276000.png" alt="VPG" width="300" style="display: inline-block;"/>
+  <img src="/SAC/training_progress_gym_sac_20000.png" alt="SAC" width="300" style="display: inline-block;"/>
 </p>
 
+# HomeWork 4:
 
+<p align="center">
+  <img src="/test_images/cnmperror.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/test_images/cnmppred.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/test_images/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+</p>
 
 
 
