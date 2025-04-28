@@ -111,9 +111,9 @@ Now that working in Gym environment, I could manage to get increase in rewards f
 # HomeWork 4:
 
 <p align="center">
-  <img src="/test_images/cnmperror.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/test_images/cnmppred.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
-  <img src="/test_images/firstgoodone.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/cnmperror.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/cnmppred.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/cnmpbar.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
 
 
