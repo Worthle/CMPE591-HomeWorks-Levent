@@ -6,7 +6,7 @@ Both these codes will ask you to enter a number for different methods.
 4- DQN Training  
 5- VPG Training  
 6- SAC Training  
-This way you are be able to train or test the networks with only these two codes.
+This way you are be able to train or test the networks with only these two codes. (I have noticed something that trained networks are corrupted for CNN and DCNN. I tried to find a way to fix that but I couldn't the only way to see test loss is running training again)
 
 # HomeWork 1:
 
