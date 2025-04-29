@@ -113,8 +113,8 @@ Now that working in Gym environment, I could manage to get increase in rewards f
 I thought the Homework due 28.04.2025 11:59 PM but It was 11:59 AM. Thatsw why I couldn't prepare the readme properly. I will update this text but I wanted to send as soon as possible.
 <p align="center">
   <img src="/time_plots/cnmperror.png" alt="Normal Epsilon Decay" width="300" style="display: inline-block;"/>
-  <img src="/time_plots/cnmppreddd.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
-  <img src="/time_plots/cnmpbar.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/predicted.png" alt="Dynamic Epsilon Decay - 100 Episode" width="300" style="display: inline-block;"/>
+  <img src="/time_plots/barplotdifferentrange.png" alt="Dynamic Epsilon Decay - 500 Episode" width="300" style="display: inline-block;"/>
 </p>
 
 
